@@ -1,0 +1,53 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+@model WebApplication.Presentation.Models.ProductFilterViewModel
+
+<h2>Product toevoegen aan boodschappenlijst</h2>
+<a href="/ShoppingList/AllShoppingLists" style="padding:5px 10px; font-size:16px; text-decoration:none; background-color:#f0f0f0; border:1px solid #ccc; border-radius:5px; color:black;">
+    ← Terug
+</a>
+
+
+<form asp-action="AddToList" method="post">
+    <input type="hidden" asp-for="ShoppingListId" />
+    <label>Naam:</label>
+    <input asp-for="Name" />
+    <label>Winkel:</label>
+    <input asp-for="Store" />
+    <label>Categorie:</label>
+    <input asp-for="Category" />
+    <button type="submit">Zoek</button>
+</form>
+
+@if (Model.Products.Any())
+{
+    <h3>Gevonden producten</h3>
+    <table>
+        <tr>
+            <th>Naam</th>
+            <th>Winkel</th>
+            <th>Categorie</th>
+            <th>Prijs</th>
+            <th>Toevoegen</th>
+        </tr>
+        @foreach (var p in Model.Products)
+        {
+            <tr>
+                <td>@p.Name</td>
+                <td>@p.Store</td>
+                <td>@p.Category</td>
+                <td>€ @p.Price</td>
+                <td>
+                    <form asp-action="AddFilteredProductToList" method="post">
+                        <input type="hidden" name="shoppingListId" value="@Model.ShoppingListId" />
+                        <input type="hidden" name="productId" value="@p.Id" />
+                        <input type="number" name="quantity" value="1" min="1" />
+                        <button type="submit">Voeg toe</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </table>
+}

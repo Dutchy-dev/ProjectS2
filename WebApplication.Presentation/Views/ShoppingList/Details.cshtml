@@ -1,0 +1,68 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+
+@model List<WebApplication.Presentation.Models.ProductWithQuantityViewModel>
+@{
+    var shoppingListId = ViewBag.ShoppingListId;
+}
+<a href="/ShoppingList/AllShoppingLists" style="padding:5px 10px; font-size:16px; text-decoration:none; background-color:#f0f0f0; border:1px solid #ccc; border-radius:5px; color:black;">
+    ← Terug
+</a>
+
+
+<table>
+    <thead>
+        <tr>
+            <th>Naam</th>
+            <th>Winkel</th>
+            <th>Categorie</th>
+            <th>Prijs</th>
+            <th>Hoeveelheid</th>
+            <th>Acties</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Product.Name</td>
+                <td>@item.Product.Store</td>
+                <td>@item.Product.Category</td>
+                <td>@item.Product.Price.ToString("C")</td>
+                <td>
+                    <!-- Knop om te verlagen -->
+                    <form asp-controller="ProductList" asp-action="UpdateQuantity" method="post" style="display:inline;">
+                        <input type="hidden" name="shoppingListId" value="@shoppingListId" />
+                        <input type="hidden" name="productId" value="@item.Product.Id" />
+                        <input type="hidden" name="delta" value="-1" />
+                        <button type="submit" @(item.Quantity <= 1 ? "disabled" : "")>-</button>
+                    </form>
+
+                    @item.Quantity
+
+                    <!-- Knop om te verhogen -->
+                    <form asp-controller="ProductList" asp-action="UpdateQuantity" method="post" style="display:inline;">
+                        <input type="hidden" name="shoppingListId" value="@shoppingListId" />
+                        <input type="hidden" name="productId" value="@item.Product.Id" />
+                        <input type="hidden" name="delta" value="1" />
+                        <button type="submit">+</button>
+                    </form>
+                </td>
+                <td>
+                    <!-- Verwijderknop -->
+                    <form asp-controller="ProductList" asp-action="RemoveFromList" method="post" style="display:inline;">
+                        <input type="hidden" name="shoppingListId" value="@shoppingListId" />
+                        <input type="hidden" name="productId" value="@item.Product.Id" />
+                        <button type="submit">Verwijderen</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+
+
+

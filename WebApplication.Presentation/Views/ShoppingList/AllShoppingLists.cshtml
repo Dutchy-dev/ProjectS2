@@ -1,0 +1,44 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model List<WebApplication.Presentation.Models.ShoppingListWithProductsViewModel>
+
+<h2>Boodschappenlijsten</h2>
+<a href="/Home/Index" style="padding:5px 10px; font-size:16px; text-decoration:none; background-color:#f0f0f0; border:1px solid #ccc; border-radius:5px; color:black;">
+    ← Terug
+</a>
+
+<table>
+    <tr>
+        <th>Thema</th>
+        <th>Producten</th>
+        <th>Actie</th>
+    </tr>
+    @foreach (var list in Model)
+    {
+        <tr>
+            <td>@list.Theme</td>
+            <td>
+                <ul>
+                    @foreach (var product in list.Products)
+                    {
+                        <li>@product.Product.Name (@product.Quantity)</li>
+                    }
+                </ul>
+            </td>
+            <td>
+                <a asp-controller="ProductList" asp-action="AddToList" asp-route-shoppingListId="@list.ShoppingListId">Product toevoegen</a>
+
+                <a asp-controller="ShoppingList" asp-action="Details" asp-route-shoppingListId="@list.ShoppingListId">Wijzig boodschappenlijst</a>
+                
+                <form asp-controller="ShoppingList" asp-action="Delete" method="post" style="display:inline;" onsubmit="return confirm('Weet je zeker dat je deze lijst wilt verwijderen?');">
+                    <input type="hidden" name="shoppingListId" value="@list.ShoppingListId" />
+                    <button type="submit">Verwijder lijst</button>
+                </form>
+            </td>
+        </tr>
+    }
+</table>
+
+
+
