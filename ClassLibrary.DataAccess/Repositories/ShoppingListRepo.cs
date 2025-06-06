@@ -18,7 +18,7 @@ namespace ClassLibrary.DataAccess.Repositories
             using var conn = new MySqlConnection(_connectionString);
             conn.Open();
 
-            var cmd = new MySqlCommand("INSERT INTO ShoppingList (Theme, User_id) VALUES (@theme, @userId)", conn);
+            using var cmd = new MySqlCommand("INSERT INTO ShoppingList (Theme, User_id) VALUES (@theme, @userId)", conn);
             cmd.Parameters.AddWithValue("@theme", list.Theme);
             cmd.Parameters.AddWithValue("@userId", list.UserId);
             cmd.ExecuteNonQuery();
@@ -62,12 +62,12 @@ namespace ClassLibrary.DataAccess.Repositories
             connection.Open();
 
             // Verwijder eerst gekoppelde producten
-            var deleteProductsCmd = new MySqlCommand("DELETE FROM ProductList WHERE ShoppingList_id = @id", connection);
+            using var deleteProductsCmd = new MySqlCommand("DELETE FROM ProductList WHERE ShoppingList_id = @id", connection);
             deleteProductsCmd.Parameters.AddWithValue("@id", shoppingListId);
             deleteProductsCmd.ExecuteNonQuery();
 
             // Verwijder daarna de lijst
-            var deleteListCmd = new MySqlCommand("DELETE FROM ShoppingList WHERE Id = @id", connection);
+            using var deleteListCmd = new MySqlCommand("DELETE FROM ShoppingList WHERE Id = @id", connection);
             deleteListCmd.Parameters.AddWithValue("@id", shoppingListId);
             deleteListCmd.ExecuteNonQuery();
         }

@@ -1,6 +1,9 @@
-﻿using ClassLibrary.Domain.Interfaces;
+﻿using ClassLibrary.DataAccess.DataAcces_Exceptions;
+using ClassLibrary.DataAccess.Exceptions;
+using ClassLibrary.Domain.Interfaces;
 using ClassLibrary.Domain.Models;
 using MySql.Data.MySqlClient;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,14 +54,21 @@ namespace ClassLibrary.DataAccess.Repositories
 
         public void AddProductToList(ProductList item)
         {
-            using var connection = new MySqlConnection(_connectionString);
-            connection.Open();
+            try
+            {
+                using var connection = new MySqlConnection(_connectionString);
+                connection.Open();
 
-            var cmd = new MySqlCommand("INSERT INTO ProductList (ShoppingList_id, Product_id, Quantity) VALUES (@listId, @productId, @quantity)", connection);
-            cmd.Parameters.AddWithValue("@listId", item.ShoppingListId);
-            cmd.Parameters.AddWithValue("@productId", item.ProductId);
-            cmd.Parameters.AddWithValue("@quantity", item.Quantity);
-            cmd.ExecuteNonQuery();
+                using var cmd = new MySqlCommand("INSERT INTO ProductList (ShoppingList_id, Product_id, Quantity) VALUES (@listId, @productId, @quantity)", connection);
+                cmd.Parameters.AddWithValue("@listId", item.ShoppingListId);
+                cmd.Parameters.AddWithValue("@productId", item.ProductId);
+                cmd.Parameters.AddWithValue("@quantity", item.Quantity);
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                RepositoryExceptionHelper.HandleException(ex, $"toevoegen product aan lijst (ListId: {item.ShoppingListId}, ProductId: {item.ProductId})");
+            }
         }
 
         public void RemoveProductFromList(int shoppingListId, int productId)
@@ -66,7 +76,7 @@ namespace ClassLibrary.DataAccess.Repositories
             using (var connection = new MySqlConnection(_connectionString))
             {
                 connection.Open();
-                var cmd = connection.CreateCommand();
+                using var cmd = connection.CreateCommand();
                 cmd.CommandText = "DELETE FROM ProductList WHERE ShoppingList_id = @listId AND Product_id = @productId";
                 cmd.Parameters.AddWithValue("@listId", shoppingListId);
                 cmd.Parameters.AddWithValue("@productId", productId);
@@ -80,7 +90,7 @@ namespace ClassLibrary.DataAccess.Repositories
             connection.Open();
 
             // Haal huidige hoeveelheid op
-            var getCmd = new MySqlCommand(
+            using var getCmd = new MySqlCommand(
                 "SELECT Quantity FROM ProductList WHERE ShoppingList_id = @listId AND Product_id = @productId",
                 connection);
             getCmd.Parameters.AddWithValue("@listId", shoppingListId);
@@ -97,7 +107,7 @@ namespace ClassLibrary.DataAccess.Repositories
                 if (newQuantity < 1)
                     newQuantity = 1;
 
-                var updateCmd = new MySqlCommand(
+                using var updateCmd = new MySqlCommand(
                     "UPDATE ProductList SET Quantity = @quantity WHERE ShoppingList_id = @listId AND Product_id = @productId",
                     connection);
                 updateCmd.Parameters.AddWithValue("@quantity", newQuantity);

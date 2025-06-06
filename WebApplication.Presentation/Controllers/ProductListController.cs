@@ -3,6 +3,7 @@ using ClassLibrary.Domain.Models;
 using ClassLibrary.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication.Presentation.Models;
+using ClassLibrary.Domain.Domain_Exceptions;
 
 namespace WebApplication.Presentation.Controllers
 {
@@ -56,7 +57,14 @@ namespace WebApplication.Presentation.Controllers
         {
             var items = new ProductList(model.ShoppingListId, model.ProductId, model.Quantity);
 
-            _productListService.AddProductToList(items);
+            try
+            {
+                _productListService.AddProductToList(items);
+            }
+            catch (ServicesException ex)
+            {
+                TempData["ErrorMessage"] = "Er is iets misgegaan bij het toevoegen van het product.";
+            }
             return RedirectToAction("AddToList", new { shoppingListId = model.ShoppingListId });
         }
 

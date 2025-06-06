@@ -21,6 +21,12 @@
     <button type="submit">Zoek</button>
 </form>
 
+@if (TempData["ErrorMessage"] != null)
+{
+    <div style="color: red; font-weight: bold; margin-top: 10px;">
+        @TempData["ErrorMessage"]
+    </div>
+}
 @if (Model.Products.Any())
 {
     <h3>Gevonden producten</h3>
