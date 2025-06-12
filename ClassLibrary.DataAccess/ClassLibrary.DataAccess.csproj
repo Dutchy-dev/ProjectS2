@@ -16,9 +16,4 @@
     <ProjectReference Include="..\ClassLibrary.Domain\ClassLibrary.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Tests\Integration Tests\" />
-    <Folder Include="Tests\Unit Tests\" />
-  </ItemGroup>
-
 </Project>
