@@ -1,21 +1,22 @@
 ﻿using ClassLibrary.DataAccess.DataAcces_Exceptions;
-using ClassLibrary.DataAccess.Exceptions;
 using ClassLibrary.Domain.Interfaces;
 using ClassLibrary.Domain.Models;
 using MySql.Data.MySqlClient;
-using Serilog;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ClassLibrary.DataAccess.Repositories
 {
     public class ProductListRepo : IProductListRepo
     {
-        private readonly string _connectionString = "server=localhost;port=3306;database=watetenwe;user=root;password=Brompton1102XD;";
-        
+        //private readonly string _connectionString = "server=localhost;port=3306;database=watetenwe;user=root;password=Brompton1102XD;";
+
+        private readonly string _connectionString;
+
+        public ProductListRepo(string connectionString)
+        {
+            _connectionString = connectionString;
+        }
+
         public List<ProductWithQuantity> GetProductsByShoppingListId(int shoppingListId)
         {
             var result = new List<ProductWithQuantity>();

@@ -11,8 +11,15 @@ namespace ClassLibrary.DataAccess.Repositories
 {
     public class ProductRepo : IProductRepo
     {
-        private readonly string _connectionString = "server=localhost;port=3306;database=watetenwe;user=root;password=Brompton1102XD;";
-        
+        //private readonly string _connectionString = "server=localhost;port=3306;database=watetenwe;user=root;password=Brompton1102XD;";
+
+        private readonly string _connectionString;
+
+        public ProductRepo(string connectionString)
+        {
+            _connectionString = connectionString;
+        }
+
         public Product GetById(int id)
         {
             Product product = null;

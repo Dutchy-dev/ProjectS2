@@ -1,8 +1,4 @@
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using ClassLibrary.Domain.Services;
-using ClassLibrary.Domain.Models;
 using ClassLibrary.DataAccess.Repositories;
 using ClassLibrary.Domain.Interfaces;
 
@@ -10,12 +6,26 @@ var builder = Microsoft.AspNetCore.Builder.WebApplication.CreateBuilder(args);
 
 // Add services to the container.  
 builder.Services.AddControllersWithViews();
-
-builder.Services.AddScoped<IProductRepo, ProductRepo>();
+builder.Services.AddScoped<IProductRepo>(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    string conn = config.GetConnectionString("Default");
+    return new ProductRepo(conn);
+});
 builder.Services.AddScoped<ProductService>();
-builder.Services.AddScoped<IShoppingListRepo, ShoppingListRepo>();
+builder.Services.AddScoped<IShoppingListRepo>(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    string conn = config.GetConnectionString("Default");
+    return new ShoppingListRepo(conn);
+});
 builder.Services.AddScoped<ShoppingListService>();
-builder.Services.AddScoped<IProductListRepo, ProductListRepo>();
+builder.Services.AddScoped<IProductListRepo>(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    string conn = config.GetConnectionString("Default");
+    return new ProductListRepo(conn);
+});
 builder.Services.AddScoped<ProductListService>();
 
 var app = builder.Build();

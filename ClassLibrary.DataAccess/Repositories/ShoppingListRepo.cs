@@ -11,7 +11,14 @@ namespace ClassLibrary.DataAccess.Repositories
 {
     public class ShoppingListRepo : IShoppingListRepo
     {
-        private readonly string _connectionString = "server=localhost;port=3306;database=watetenwe;user=root;password=Brompton1102XD;";
+        //private readonly string _connectionString = "server=localhost;port=3306;database=watetenwe;user=root;password=Brompton1102XD;";
+
+        private readonly string _connectionString;
+
+        public ShoppingListRepo(string connectionString)
+        {
+            _connectionString = connectionString;
+        }
 
         public void Add(ShoppingList list)
         {
