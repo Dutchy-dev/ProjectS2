@@ -1,19 +1,21 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-
-@model List<WebApplication.Presentation.Models.ProductWithQuantityViewModel>
+﻿@model WebApplication.Presentation.Models.ShoppingListDetailsViewModel
 @{
-    var shoppingListId = ViewBag.ShoppingListId;
+    var shoppingListId = Model.ShoppingListId;
 }
-<a href="/ShoppingList/AllShoppingLists" style="padding:5px 10px; font-size:16px; text-decoration:none; background-color:#f0f0f0; border:1px solid #ccc; border-radius:5px; color:black;">
+<a href="/ShoppingList/Index" style="padding:5px 10px; font-size:16px; text-decoration:none; background-color:#f0f0f0; border:1px solid #ccc; border-radius:5px; color:black;">
     ← Terug
 </a>
 
-
 <table>
+    <h2>thema: @Model.Theme</h2>
+
+    <div style="margin-bottom: 15px;">
+        <a asp-controller="ProductList" asp-action="AddToList" asp-route-shoppingListId="@Model.ShoppingListId" style="margin-right:10px;">Product toevoegen</a>
+    </div>
+
     <thead>
         <tr>
+            <th>Gevonden?</th>
             <th>Naam</th>
             <th>Winkel</th>
             <th>Categorie</th>
@@ -23,15 +25,17 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var item in Model.Products)
         {
-            <tr>
+            <tr id="row_@item.Product.Id">
+                <td>
+                    <input type="checkbox" class="found-checkbox" id="found_@item.Product.Id" />
+                </td>
                 <td>@item.Product.Name</td>
                 <td>@item.Product.Store</td>
                 <td>@item.Product.Category</td>
                 <td>@item.Product.Price.ToString("C")</td>
                 <td>
-                    <!-- Knop om te verlagen -->
                     <form asp-controller="ProductList" asp-action="UpdateQuantity" method="post" style="display:inline;">
                         <input type="hidden" name="shoppingListId" value="@shoppingListId" />
                         <input type="hidden" name="productId" value="@item.Product.Id" />
@@ -41,7 +45,6 @@
 
                     @item.Quantity
 
-                    <!-- Knop om te verhogen -->
                     <form asp-controller="ProductList" asp-action="UpdateQuantity" method="post" style="display:inline;">
                         <input type="hidden" name="shoppingListId" value="@shoppingListId" />
                         <input type="hidden" name="productId" value="@item.Product.Id" />
@@ -50,7 +53,6 @@
                     </form>
                 </td>
                 <td>
-                    <!-- Verwijderknop -->
                     <form asp-controller="ProductList" asp-action="RemoveFromList" method="post" style="display:inline;">
                         <input type="hidden" name="shoppingListId" value="@shoppingListId" />
                         <input type="hidden" name="productId" value="@item.Product.Id" />
@@ -60,9 +62,49 @@
             </tr>
         }
     </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="3"></td>
+            <td><strong>Totaal:</strong></td>
+            <td colspan="2">@Model.TotalPrice.ToString("C")</td>
+        </tr>
+    </tfoot>
 </table>
 
+@section Styles {
+    <style>
+        .found-row {
+            background-color: #d4edda; /* lichtgroen */
+        }
+    </style>
+}
 
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.found-checkbox').forEach(cb => {
+                const productId = cb.id.replace('found_', '');
+                const row = document.getElementById('row_' + productId);
 
+                // Check lokale opslag voor status
+                const savedStatus = localStorage.getItem('found_' + productId);
+                if (savedStatus === 'true') {
+                    cb.checked = true;
+                    if (row) {
+                        row.classList.add('found-row');
+                    }
+                }
 
-
+                // Opslaan bij wijzigen + achtergrond aanpassen
+                cb.addEventListener('change', () => {
+                    localStorage.setItem('found_' + productId, cb.checked);
+                    if (cb.checked) {
+                        row.classList.add('found-row');
+                    } else {
+                        row.classList.remove('found-row');
+                    }
+                });
+            });
+        });
+    </script>
+}

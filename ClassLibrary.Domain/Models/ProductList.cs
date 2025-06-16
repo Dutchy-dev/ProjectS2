@@ -9,6 +9,7 @@ namespace ClassLibrary.Domain.Models
     public class ProductList
     {
         public int ShoppingListId { get; private set; }
+        public int RecipeId { get; private set; }
         public int ProductId { get; private set; }
         public int Quantity { get; private set; }
 

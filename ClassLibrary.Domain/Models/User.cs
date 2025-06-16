@@ -10,11 +10,13 @@ namespace ClassLibrary.Domain.Models
     {
         public int Id { get; private set; }
         public string Name { get; private set; }
+        public string PasswordHash { get; private set; }
 
-        public User(int id, string name)
+        public User(int id, string name, string passwordHash)
         {
             this.Id = id;
             this.Name = name;
+            this.PasswordHash = passwordHash;
         }
     }
 }

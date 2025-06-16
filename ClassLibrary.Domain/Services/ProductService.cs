@@ -10,16 +10,16 @@ namespace ClassLibrary.Domain.Services
 {
     public class ProductService
     {
-        private readonly IProductRepo _productRepository;
+        private readonly IProductRepo _productRepo;
         
         public ProductService(IProductRepo productRepository)
         {
-            _productRepository = productRepository;
+            _productRepo = productRepository;
         }//
 
         public Product GetProductById(int id)
         {
-            return _productRepository.GetById(id);
+            return _productRepo.GetById(id);
         }//
         
     }

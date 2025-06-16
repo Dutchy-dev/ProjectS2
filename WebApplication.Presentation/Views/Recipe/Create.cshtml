@@ -1,0 +1,17 @@
+﻿@model WebApplication.Presentation.Models.RecipeIndexViewModel
+
+<a href="@Url.Action("Index", "Recipe", new { cookbookId = Model.CookbookId })"
+   style="padding:5px 10px; font-size:16px; text-decoration:none; background-color:#f0f0f0; border:1px solid #ccc; border-radius:5px; color:black;">
+    ← Terug
+</a>
+
+<form asp-action="Create" method="post" class="mb-4">
+    <input type="hidden" asp-for="NewRecipe.CookbookId" value="@Model.CookbookId" />
+    <div class="mb-2">
+        <input asp-for="NewRecipe.Name" class="form-control" placeholder="Naam recept" required />
+    </div>
+    <div class="mb-2">
+        <textarea asp-for="NewRecipe.Description" class="form-control" placeholder="Beschrijving" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-success">Recept toevoegen</button>
+</form>

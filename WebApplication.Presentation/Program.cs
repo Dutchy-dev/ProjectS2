@@ -6,6 +6,27 @@ var builder = Microsoft.AspNetCore.Builder.WebApplication.CreateBuilder(args);
 
 // Add services to the container.  
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<IUserRepo>(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    string conn = config.GetConnectionString("Default");
+    return new UserRepo(conn);
+});
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<ICookbookRepo>(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    string conn = config.GetConnectionString("Default");
+    return new CookbookRepo(conn);
+});
+builder.Services.AddScoped<CookbookService>();
+builder.Services.AddScoped<IRecipeRepo>(sp =>
+{
+    var config = sp.GetRequiredService<IConfiguration>();
+    string conn = config.GetConnectionString("Default");
+    return new RecipeRepo(conn);
+});
+builder.Services.AddScoped<RecipeService>();
 builder.Services.AddScoped<IProductRepo>(sp =>
 {
     var config = sp.GetRequiredService<IConfiguration>();
@@ -27,6 +48,8 @@ builder.Services.AddScoped<IProductListRepo>(sp =>
     return new ProductListRepo(conn);
 });
 builder.Services.AddScoped<ProductListService>();
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession();
 
 var app = builder.Build();
 
@@ -39,15 +62,16 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseRouting();
+app.UseSession();
 
+app.UseRouting();
 app.UseAuthorization();
 
 app.MapStaticAssets();
 
 app.MapControllerRoute(
   name: "default",
-  pattern: "{controller=Home}/{action=Index}/{id?}")
+  pattern: "{controller=User}/{action=Login}/{id?}")
   .WithStaticAssets();
 
 app.Run();

@@ -1,0 +1,26 @@
+﻿@model WebApplication.Presentation.Models.RecipeDetailsViewModel
+
+<a href="@Url.Action("Index", "Recipe", new { cookbookId = Model.CookbookId })"
+   style="padding:5px 10px; font-size:16px; text-decoration:none; background-color:#f0f0f0; border:1px solid #ccc; border-radius:5px; color:black;">
+    ← Terug
+</a>
+
+<a asp-controller="ProductList" asp-action="AddToRecipe" asp-route-recipeId="@Model.Id" class="btn btn-primary">
+    Product toevoegen
+</a>
+
+<a href="@Url.Action("Edit", "Recipe", new { id = Model.Id })">Bewerken</a>
+
+<h2>@Model.Name</h2>
+<p>@Model.Description</p>
+
+@if (Model.Products != null && Model.Products.Any())
+{
+    <h4>Ingrediënten:</h4>
+    <ul>
+        @foreach (var p in Model.Products)
+        {
+            <li>@p.ProductName - @p.Quantity</li>
+        }
+    </ul>
+}

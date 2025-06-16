@@ -8,8 +8,6 @@ namespace ClassLibrary.DataAccess.Repositories
 {
     public class ProductListRepo : IProductListRepo
     {
-        //private readonly string _connectionString = "server=localhost;port=3306;database=watetenwe;user=root;password=Brompton1102XD;";
-
         private readonly string _connectionString;
 
         public ProductListRepo(string connectionString)
@@ -121,41 +119,9 @@ namespace ClassLibrary.DataAccess.Repositories
 
         public List<Product> GetFilteredProducts(ProductFilter filter)
         {
-            var ProductsBasedOnFilter = new List<Product>();
             using var connection = new MySqlConnection(_connectionString);
             connection.Open();
-
-            var query = new StringBuilder("SELECT * FROM Product WHERE 1=1");
-            if (!string.IsNullOrEmpty(filter.Name))
-                query.Append(" AND Name LIKE @name");
-            if (!string.IsNullOrEmpty(filter.Store))
-                query.Append(" AND Store = @store");
-            if (!string.IsNullOrEmpty(filter.Category))
-                query.Append(" AND Category = @category");
-
-            using var cmd = new MySqlCommand(query.ToString(), connection);
-
-            if (!string.IsNullOrEmpty(filter.Name))
-                cmd.Parameters.AddWithValue("@name", $"%{filter.Name}%");
-            if (!string.IsNullOrEmpty(filter.Store))
-                cmd.Parameters.AddWithValue("@store", filter.Store);
-            if (!string.IsNullOrEmpty(filter.Category))
-                cmd.Parameters.AddWithValue("@category", filter.Category);
-
-            using var reader = cmd.ExecuteReader();
-            while (reader.Read())
-            {
-                ProductsBasedOnFilter.Add(new Product
-                (
-                    reader.GetInt32("Id"),
-                    reader.GetString("Name"),
-                    reader.GetString("Store"),
-                    reader.GetDecimal("Price"),
-                    reader.GetString("Category")
-                ));
-            }
-
-            return ProductsBasedOnFilter;
+            return ProductQueryHelper.ExecuteFilteredProductQuery(connection, filter);
         }
 
     }

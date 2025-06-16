@@ -1,0 +1,28 @@
+﻿@model List<ClassLibrary.Domain.Models.Cookbook>
+
+<a href="/Home/Index" style="padding:5px 10px; font-size:16px; text-decoration:none; background-color:#f0f0f0; border:1px solid #ccc; border-radius:5px; color:black;">
+    ← Terug
+</a>
+
+<ul>
+    <li><a asp-controller="Cookbook" asp-action="Create">➕ Nieuw Kookboek</a></li>
+</ul>
+
+
+<h2>Mijn Kookboeken</h2>
+
+@foreach (var cookbook in Model)
+{
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5 class="card-title">@cookbook.Name</h5>
+            <p>@cookbook.Description</p>
+            <a asp-controller="Recipe" asp-action="Index" asp-route-cookbookId="@cookbook.Id" class="btn btn-primary">Bekijk Recepten</a>
+            <a asp-action="Edit" asp-route-id="@cookbook.Id" class="btn btn-warning">Bewerk</a>
+            <form asp-action="Delete" asp-route-id="@cookbook.Id" method="post" style="display:inline;">
+                <button type="submit" class="btn btn-danger" onclick="return confirm('Weet je zeker dat je dit kookboek wilt verwijderen?');">Verwijder</button>
+            </form>
+        </div>
+    </div>
+}
+

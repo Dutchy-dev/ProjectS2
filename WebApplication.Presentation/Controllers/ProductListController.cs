@@ -10,26 +10,13 @@ namespace WebApplication.Presentation.Controllers
     public class ProductListController : Controller
     {
         private readonly ProductListService _productListService;
+        private readonly RecipeService _recipeService;
 
-        public ProductListController(ProductListService productListService)
+        public ProductListController(ProductListService productListService, RecipeService recipeService)
         {
             _productListService = productListService;
-
+            _recipeService = recipeService;
         }
-        /*
-        [HttpGet]
-        public IActionResult Add()
-        {
-            return View(); // Formulier tonen
-        }
-
-        [HttpPost]
-        public IActionResult Add(int shoppingListId, int productId, int quantity)
-        {
-            _productListService.AddProductToList(shoppingListId, productId, quantity);
-            return RedirectToAction("Add");
-        }
-        */
 
         [HttpGet]
         public IActionResult AddToList(int shoppingListId)
@@ -80,6 +67,41 @@ namespace WebApplication.Presentation.Controllers
         {
             _productListService.ChangeQuantity(shoppingListId, productId, delta);
             return RedirectToAction("Details", "ShoppingList", new { shoppingListId = shoppingListId });
+        }
+
+        [HttpGet]
+        public IActionResult AddToRecipe(int recipeId)
+        {
+            var model = new ProductFilterViewModel
+            {
+                RecipeId = recipeId
+            };
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult AddToRecipe(ProductFilterViewModel model)
+        {
+            var domainFilter = model.ToDomainModel();
+            var products = _productListService.GetFilteredProducts(domainFilter);
+            model.Products = products;
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult AddFilteredProductToRecipe(ProductListViewModel model)
+        {
+            try
+            {
+                var recipeProduct = new RecipeProduct(model.RecipeId, model.ProductId, model.Quantity);
+                _recipeService.AddProductToRecipe(recipeProduct);
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] = "Er is iets misgegaan bij het toevoegen van het product.";
+            }
+
+            return RedirectToAction("AddToRecipe", new { recipeId = model.RecipeId });
         }
     }
 }

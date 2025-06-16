@@ -9,6 +9,7 @@ namespace WebApplication.Presentation.Models
         public string? Category { get; set; }
         public List<Product> Products { get; set; } = new();
         public int ShoppingListId { get; set; }
+        public int RecipeId { get; set; }
 
         public ProductFilter ToDomainModel()
         {

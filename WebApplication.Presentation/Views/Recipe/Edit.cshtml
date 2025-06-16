@@ -1,0 +1,60 @@
+﻿@using Newtonsoft.Json
+@using WebApplication.Presentation.Models
+@model WebApplication.Presentation.Models.RecipeDetailsViewModel
+
+<h2>Recept bewerken</h2>
+
+<a href="@Url.Action("Details", "Recipe", new { id = Model.Id })"
+   style="padding:5px 10px; font-size:16px; text-decoration:none; background-color:#f0f0f0; border:1px solid #ccc; border-radius:5px; color:black;">
+    ← Terug
+</a>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <input asp-for="Name" class="form-control" placeholder="Naam recept" />
+    <input asp-for="Description" class="form-control" placeholder="Beschrijving" />
+
+    <h3>Producten</h3>
+    <ul id="product-list">
+        @for (int i = 0; i < Model.Products.Count; i++)
+        {
+            <li>
+                <input type="hidden" asp-for="Products[@i].ProductId" />
+                <input type="text" asp-for="Products[@i].ProductName" readonly />
+                <input type="number" asp-for="Products[@i].Quantity" min="1" />
+                <button type="button" onclick="removeProduct(this)">Verwijder</button>
+            </li>
+        }
+    </ul>
+    <input type="hidden" id="RemovedProductIds" name="RemovedProductIds" />
+    <hr />
+
+    <button type="submit" class="btn btn-success">Opslaan</button>
+</form>
+
+<script>
+    let productsInList = @Html.Raw(Json.Serialize(Model.Products));
+
+    function removeProduct(button) {
+        const li = button.parentElement;
+        const id = parseInt(li.querySelector('input[type=hidden]').value);
+
+        // Voeg toe aan de lijst met verwijderde producten
+        const removedInput = document.getElementById("RemovedProductIds");
+        let removedIds = removedInput.value ? removedInput.value.split(',').map(x => parseInt(x)) : [];
+        removedIds.push(id);
+        removedInput.value = removedIds.join(',');
+
+        // Verwijder het element uit de lijst
+        li.remove();
+
+        // Herbenoem de inputs
+        const list = document.getElementById('product-list');
+        const listItems = list.querySelectorAll('li');
+        listItems.forEach((item, i) => {
+            item.querySelector('input[type=hidden]').name = `Products[${i}].ProductId`;
+            item.querySelector('input[type=number]').name = `Products[${i}].Quantity`;
+        });
+    }
+</script>

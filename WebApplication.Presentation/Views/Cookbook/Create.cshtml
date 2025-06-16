@@ -1,0 +1,25 @@
+﻿@using ClassLibrary.Domain.Models
+@model WebApplication.Presentation.Models.CreateCookbookViewModel
+
+<a href="/Cookbook/Index" style="padding:5px 10px; font-size:16px; text-decoration:none; background-color:#f0f0f0; border:1px solid #ccc; border-radius:5px; color:black;">
+    ← Terug
+</a>
+
+<h2>Nieuw Kookboek Aanmaken</h2>
+
+<form asp-action="Create" method="post">
+    <div class="mb-3">
+        <label for="Name" class="form-label">Naam</label>
+        <input asp-for="Name" class="form-control" required />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label for="Description" class="form-label">Beschrijving</label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Opslaan</button>
+</form>
+

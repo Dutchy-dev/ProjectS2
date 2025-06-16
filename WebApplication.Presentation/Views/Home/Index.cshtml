@@ -5,7 +5,15 @@
 <h1>Welkom bij Wat Eten We</h1>
 
 <ul>
-    <li><a asp-controller="ShoppingList" asp-action="Create">Nieuwe boodschappenlijst aanmaken</a></li>
-    <li><a asp-controller="ShoppingList" asp-action="AllShoppingLists">Bekijk bestaande lijsten</a></li>
+    <li><a asp-controller="ShoppingList" asp-action="Index">Mijn boodschappenlijsten</a></li>
+    <li><a asp-controller="Cookbook" asp-action="Index">Mijn Kookboeken</a></li>
 </ul>
+
+@if (Context.Session.GetInt32("UserId") != null)
+{
+    <form asp-controller="User" asp-action="Logout" method="post">
+        <button type="submit">Logout</button>
+    </form>
+}
+
 

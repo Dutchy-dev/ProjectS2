@@ -15,5 +15,6 @@ namespace ClassLibrary.Domain.Interfaces
 
         void DeleteShoppingList(int shoppingListId);
 
+        ShoppingList GetShoppingListsById(int shoppingListId);
     }
 }

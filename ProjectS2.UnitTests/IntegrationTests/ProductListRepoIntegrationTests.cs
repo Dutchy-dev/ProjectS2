@@ -29,7 +29,7 @@ namespace ProjectS2.Tests.IntegrationTests
         public void Setup()
         {
             var config = TestConfiguration.Load();
-            _connectionString = config.GetConnectionString("Default");
+            _connectionString = config.GetConnectionString("TestDatabase");
             _repo = new ProductListRepo(_connectionString);
 
             using var connection = new MySqlConnection(_connectionString);

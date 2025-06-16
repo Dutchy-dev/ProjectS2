@@ -11,6 +11,7 @@ namespace ClassLibrary.Domain.Models
         public int Id { get; private set; }
         public string Theme { get; private set; }
         public int UserId { get; private set; }
+        public decimal? TotalPrice { get; private set; }
 
         public ShoppingList(string theme, int userId) // Constructor zonder Id (bij maken van nieuwe lijst)
         {

@@ -11,8 +11,6 @@ namespace ClassLibrary.DataAccess.Repositories
 {
     public class ShoppingListRepo : IShoppingListRepo
     {
-        //private readonly string _connectionString = "server=localhost;port=3306;database=watetenwe;user=root;password=Brompton1102XD;";
-
         private readonly string _connectionString;
 
         public ShoppingListRepo(string connectionString)
@@ -62,6 +60,33 @@ namespace ClassLibrary.DataAccess.Repositories
 
             return result;
         }
+
+        public ShoppingList GetShoppingListsById(int shoppingListId)
+        {
+            using var connection = new MySqlConnection(_connectionString);
+            connection.Open();
+
+            string query = @"
+            SELECT Id, Theme, User_id 
+            FROM ShoppingList 
+            WHERE Id = @id";
+
+            using var command = new MySqlCommand(query, connection);
+            command.Parameters.AddWithValue("@id", shoppingListId);
+
+            using var reader = command.ExecuteReader();
+            if (reader.Read())
+            {
+                return new ShoppingList(
+                    reader.GetInt32("Id"),
+                    reader.GetString("Theme"),
+                    reader.GetInt32("User_id")
+                );
+            }
+
+            throw new Exception("ShoppingList niet gevonden.");
+        }
+
 
         public void DeleteShoppingList(int shoppingListId)
         {

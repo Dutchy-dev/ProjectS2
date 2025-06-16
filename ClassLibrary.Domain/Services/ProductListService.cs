@@ -14,11 +14,11 @@ namespace ClassLibrary.Domain.Services
 {
     public class ProductListService
     {
-        private readonly IProductListRepo _productListRepository;
+        private readonly IProductListRepo _productListRepo;
 
         public ProductListService(IProductListRepo productListRepository)
         {
-            _productListRepository = productListRepository;
+            _productListRepo = productListRepository;
         }
 
         public void AddProductToList(ProductList item)
@@ -34,7 +34,7 @@ namespace ClassLibrary.Domain.Services
 
             try
             {
-                _productListRepository.AddProductToList(item);
+                _productListRepo.AddProductToList(item);
             }
             catch (Exception ex)
             {
@@ -44,17 +44,17 @@ namespace ClassLibrary.Domain.Services
 
         public List<Product> GetFilteredProducts(ProductFilter filter)
         {
-            return _productListRepository.GetFilteredProducts(filter);
+            return _productListRepo.GetFilteredProducts(filter);
         }
 
         public void RemoveProductFromList(int shoppingListId, int productId)
         {
-            _productListRepository.RemoveProductFromList(shoppingListId, productId);
+            _productListRepo.RemoveProductFromList(shoppingListId, productId);
         }
 
         public void ChangeQuantity(int shoppingListId, int productId, int delta)
         {
-            _productListRepository.UpdateQuantity(shoppingListId, productId, delta);
+            _productListRepo.UpdateQuantity(shoppingListId, productId, delta);
         }
 
     }

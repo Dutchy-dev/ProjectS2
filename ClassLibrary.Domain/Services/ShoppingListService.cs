@@ -10,30 +10,35 @@ namespace ClassLibrary.Domain.Services
 {
     public class ShoppingListService
     {
-        private readonly IShoppingListRepo _shoppingListRepository;
-        private readonly IProductListRepo _productListRepository;
+        private readonly IShoppingListRepo _shoppingListRepo;
+        private readonly IProductListRepo _productListRepo;
 
 
         public ShoppingListService(IShoppingListRepo shoppingListRepository, IProductListRepo productListRepository)
         {
-            _shoppingListRepository = shoppingListRepository;
-            _productListRepository = productListRepository;
+            _shoppingListRepo = shoppingListRepository;
+            _productListRepo = productListRepository;
         }
         
         public List<ProductWithQuantity> GetShoppingListDetails(int shoppingListId)
         {
-            return _productListRepository.GetProductsByShoppingListId(shoppingListId);
+            return _productListRepo.GetProductsByShoppingListId(shoppingListId);
+        }
+
+        public ShoppingList GetShoppingListsById(int shoppingListId)
+        {
+            return _shoppingListRepo.GetShoppingListsById(shoppingListId);
         }
 
         public List<(ShoppingList shoppingList, List<ProductWithQuantity> products)> GetShoppingListsWithProductsByUser(int userId)
         {
-            var ShoppingLists = _shoppingListRepository.GetShoppingListsByUserId(userId);
+            var ShoppingLists = _shoppingListRepo.GetShoppingListsByUserId(userId);
 
             var result = new List<(ShoppingList, List<ProductWithQuantity>)>();
 
             foreach (var list in ShoppingLists)
             {
-                var productsWithQuantities = _productListRepository.GetProductsByShoppingListId(list.Id);
+                var productsWithQuantities = _productListRepo.GetProductsByShoppingListId(list.Id);
                 result.Add((list, productsWithQuantities));
             }
 
@@ -43,12 +48,19 @@ namespace ClassLibrary.Domain.Services
         public void CreateShoppingList(string theme, int userId)
         {
             var list = new ShoppingList(theme, userId);
-            _shoppingListRepository.Add(list);
+            _shoppingListRepo.Add(list);
         }
 
         public void DeleteList(int shoppingListId)
         {
-            _shoppingListRepository.DeleteShoppingList(shoppingListId);
+            _shoppingListRepo.DeleteShoppingList(shoppingListId);
+        }
+
+        public decimal CalculateTotalPrice(int shoppingListId)
+        {
+            var productsWithQuantities = _productListRepo.GetProductsByShoppingListId(shoppingListId);
+
+            return productsWithQuantities.Sum(p => p.Product.Price * p.Quantity);
         }
 
     }

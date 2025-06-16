@@ -22,38 +22,48 @@ namespace WebApplication.Presentation.Controllers
         [HttpPost]
         public IActionResult Create(string theme)
         {
-            int userId = 1; // tijdelijk hardcoded
-            _shoppingListService.CreateShoppingList(theme, userId);
+            int? userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                TempData["ErrorMessage"] = "Je moet ingelogd zijn om een boodschappenlijst te maken.";
+                return RedirectToAction("Login", "User");
+            }
+            _shoppingListService.CreateShoppingList(theme, userId.Value);
             return RedirectToAction("Create");
         }
-        
+
         [HttpGet]
         public IActionResult Details(int shoppingListId)
         {
             var domainItems = _shoppingListService.GetShoppingListDetails(shoppingListId);
+            var totalPrice = _shoppingListService.CalculateTotalPrice(shoppingListId);
+            var shoppingList = _shoppingListService.GetShoppingListsById(shoppingListId);
 
-            var productViewModel = domainItems.Select(i => new ProductWithQuantityViewModel()
+            var viewModel = new ShoppingListDetailsViewModel
             {
-                Product = i.Product,
-                Quantity = i.Quantity
-            }).ToList();
+                ShoppingListId = shoppingListId,
+                Theme = shoppingList.Theme,
+                Products = domainItems.Select(i => new ProductWithQuantityViewModel
+                {
+                    Product = i.Product,
+                    Quantity = i.Quantity
+                }).ToList(),
+                TotalPrice = totalPrice
+            };
 
-            ViewBag.ShoppingListId = shoppingListId;
-            return View(productViewModel);
+            return View(viewModel);
         }
-        /*
-        [HttpGet]
-        public IActionResult SelectListToAddProduct()
-        {
-            return RedirectToAction("AllShoppingLists", new { selectingList = true });
-        }
-        */
 
         [HttpGet]
-        public IActionResult AllShoppingLists()
+        public IActionResult Index()
         {
-            int userId = 1; // tijdelijk hardcoded
-            var domainData = _shoppingListService.GetShoppingListsWithProductsByUser(userId);
+            int? userId = HttpContext.Session.GetInt32("UserId");
+            if (userId == null)
+            {
+                TempData["ErrorMessage"] = "Je moet ingelogd zijn om je boodschappenlijsten te bekijken.";
+                return RedirectToAction("Login", "User");
+            }
+            var domainData = _shoppingListService.GetShoppingListsWithProductsByUser(userId.Value);
 
             var shoppingListViewModel = domainData.Select(item => new ShoppingListWithProductsViewModel
             {
@@ -74,7 +84,7 @@ namespace WebApplication.Presentation.Controllers
         {
             _shoppingListService.DeleteList(shoppingListId);
             TempData["Message"] = "Boodschappenlijst succesvol verwijderd.";
-            return RedirectToAction("AllShoppingLists");
+            return RedirectToAction("Index");
         }
 
 

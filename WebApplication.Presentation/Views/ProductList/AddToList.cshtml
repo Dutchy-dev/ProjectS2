@@ -1,14 +1,10 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-
-@model WebApplication.Presentation.Models.ProductFilterViewModel
+﻿@model WebApplication.Presentation.Models.ProductFilterViewModel
 
 <h2>Product toevoegen aan boodschappenlijst</h2>
-<a href="/ShoppingList/AllShoppingLists" style="padding:5px 10px; font-size:16px; text-decoration:none; background-color:#f0f0f0; border:1px solid #ccc; border-radius:5px; color:black;">
+<a href="@Url.Action("Details", "ShoppingList", new { shoppingListId = Model.ShoppingListId })"
+   style="padding:5px 10px; font-size:16px; text-decoration:none; background-color:#f0f0f0; border:1px solid #ccc; border-radius:5px; color:black;">
     ← Terug
 </a>
-
 
 <form asp-action="AddToList" method="post">
     <input type="hidden" asp-for="ShoppingListId" />
@@ -27,7 +23,7 @@
         @TempData["ErrorMessage"]
     </div>
 }
-@if (Model.Products.Any())
+@if (Model.Products != null && Model.Products.Any())
 {
     <h3>Gevonden producten</h3>
     <table>
