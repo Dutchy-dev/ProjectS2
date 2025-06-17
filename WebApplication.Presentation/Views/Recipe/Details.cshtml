@@ -23,4 +23,18 @@
             <li>@p.ProductName - @p.Quantity</li>
         }
     </ul>
+    <form asp-controller="Recipe" asp-action="AddRecipeToShoppingList" method="post">
+        <input type="hidden" name="recipeId" value="@Model.Id" />
+
+        <label for="shoppingListId">Selecteer boodschappenlijst:</label>
+        <select name="shoppingListId" id="shoppingListId" class="form-control">
+            @foreach (var list in Model.AvailableShoppingLists)
+            {
+                <option value="@list.Id">@list.Name</option>
+            }
+        </select>
+
+        <br />
+        <button type="submit" class="btn btn-success">Toevoegen aan boodschappenlijst</button>
+    </form>
 }

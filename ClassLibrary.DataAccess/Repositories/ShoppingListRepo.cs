@@ -61,7 +61,7 @@ namespace ClassLibrary.DataAccess.Repositories
             return result;
         }
 
-        public ShoppingList GetShoppingListsById(int shoppingListId)
+        public ShoppingList GetShoppingListById(int shoppingListId)
         {
             using var connection = new MySqlConnection(_connectionString);
             connection.Open();
@@ -104,5 +104,56 @@ namespace ClassLibrary.DataAccess.Repositories
             deleteListCmd.ExecuteNonQuery();
         }
 
+        public void SaveProductListItem(int shoppingListId, int productId, int quantity)
+        {
+            using var conn = new MySqlConnection(_connectionString);
+            conn.Open();
+
+            // Bestaat het item al?
+            var exists = GetProductQuantity(shoppingListId, productId) > 0;
+
+            if (exists)
+            {
+                // UPDATE
+                using var updateCmd = new MySqlCommand(@"
+                UPDATE ProductList
+                SET Quantity = @quantity
+                WHERE ShoppingList_id = @listId AND Product_id = @productId", conn);
+
+                updateCmd.Parameters.AddWithValue("@quantity", quantity);
+                updateCmd.Parameters.AddWithValue("@listId", shoppingListId);
+                updateCmd.Parameters.AddWithValue("@productId", productId);
+                updateCmd.ExecuteNonQuery();
+            }
+            else
+            {
+                // INSERT
+                using var insertCmd = new MySqlCommand(@"
+                INSERT INTO ProductList (ShoppingList_id, Product_id, Quantity)
+                VALUES (@listId, @productId, @quantity)", conn);
+
+                insertCmd.Parameters.AddWithValue("@listId", shoppingListId);
+                insertCmd.Parameters.AddWithValue("@productId", productId);
+                insertCmd.Parameters.AddWithValue("@quantity", quantity);
+                insertCmd.ExecuteNonQuery();
+            }
+        }
+
+        public int GetProductQuantity(int shoppingListId, int productId)
+        {
+            using var conn = new MySqlConnection(_connectionString);
+            conn.Open();
+
+            using var cmd = new MySqlCommand(@"
+            SELECT Quantity
+            FROM ProductList
+            WHERE ShoppingList_id = @listId AND Product_id = @productId", conn);
+
+            cmd.Parameters.AddWithValue("@listId", shoppingListId);
+            cmd.Parameters.AddWithValue("@productId", productId);
+
+            var result = cmd.ExecuteScalar();
+            return result != null ? Convert.ToInt32(result) : 0;
+        }
     }
 }

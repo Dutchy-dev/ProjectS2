@@ -10,10 +10,13 @@ namespace WebApplication.Presentation.Controllers
     public class RecipeController : Controller
     {
         private readonly RecipeService _recipeService;
+        private readonly ShoppingListService _shoppingListService;
 
-        public RecipeController(RecipeService recipeService)
+
+        public RecipeController(RecipeService recipeService, ShoppingListService shoppingListService)
         {
             _recipeService = recipeService;
+            _shoppingListService = shoppingListService;
         }
 
         [HttpGet]
@@ -46,6 +49,48 @@ namespace WebApplication.Presentation.Controllers
 
             var products = _recipeService.GetProductsForRecipe(id);
 
+            // Gebruiker ophalen uit sessie
+            int? userId = HttpContext.Session.GetInt32("UserId");
+            List<RecipeDetailsViewModel.ShoppingListSummaryViewModel> shoppingLists = new();
+
+            if (userId.HasValue)
+            {
+                var listsWithProducts = _shoppingListService.GetShoppingListsWithProductsByUser(userId.Value);
+
+                shoppingLists = listsWithProducts.Select(tuple => new RecipeDetailsViewModel.ShoppingListSummaryViewModel
+                {
+                    Id = tuple.shoppingList.Id,
+                    Name = tuple.shoppingList.Theme 
+                }).ToList();
+            }
+
+            var viewModel = new RecipeDetailsViewModel
+            {
+                Id = recipe.Id,
+                Name = recipe.Name,
+                Description = recipe.Description,
+                CookbookId = recipe.CookbookId,
+                Products = products.Select(p => new ProductWithQuantityEditViewModel
+                {
+                    ProductId = p.Product.Id,
+                    ProductName = p.Product.Name,
+                    Quantity = p.Quantity
+                }).ToList(),
+                AvailableShoppingLists = shoppingLists
+            };
+
+            return View(viewModel);
+        }
+
+        /*
+        [HttpGet]
+        public IActionResult Details(int id)
+        {
+            var recipe = _recipeService.GetRecipeById(id);
+            if (recipe == null) return NotFound();
+
+            var products = _recipeService.GetProductsForRecipe(id);
+
             var viewModel = new RecipeDetailsViewModel
             {
                 Id = recipe.Id,
@@ -61,16 +106,11 @@ namespace WebApplication.Presentation.Controllers
             };
 
             return View(viewModel);
-        }
+        }*/
 
         [HttpGet]
         public IActionResult Edit(int id, [Bind(Prefix = "ProductFilter")] ProductFilterViewModel? productFilter = null)
         {
-            if (productFilter != null)
-            {
-                Console.WriteLine($"Name: {productFilter.Name}, Store: {productFilter.Store}, Category: {productFilter.Category}");
-            }
-
             var recipe = _recipeService.GetRecipeById(id);
             if (recipe == null) return NotFound();
             var viewModel = new RecipeDetailsViewModel
@@ -101,6 +141,16 @@ namespace WebApplication.Presentation.Controllers
         {
             if (!ModelState.IsValid)
             {
+                var errors = ModelState.Values
+                    .SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
+
+                foreach (var error in errors)
+                {
+                    Console.WriteLine($"ModelState error: {error}");
+                }
+
                 ViewModel.Products = _recipeService.GetProductsForRecipe(ViewModel.Id)
                     .Select(p => new ProductWithQuantityEditViewModel
                     {
@@ -109,8 +159,8 @@ namespace WebApplication.Presentation.Controllers
                         Quantity = p.Quantity
                     }).ToList();
 
-                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
-                ViewBag.Errors = errors;
+                //var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                //ViewBag.Errors = errors;
                 return View(ViewModel);
             }
 
@@ -200,5 +250,13 @@ namespace WebApplication.Presentation.Controllers
             _recipeService.DeleteRecipe(id);
             return RedirectToAction("Index", new { cookbookId });
         }
+
+        [HttpPost]
+        public IActionResult AddRecipeToShoppingList(int recipeId, int shoppingListId)
+        {
+            _recipeService.AddRecipeToShoppingList(recipeId, shoppingListId);
+            return RedirectToAction("Details", new { id = recipeId });
+        }
+
     }
 }

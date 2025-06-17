@@ -15,6 +15,13 @@ namespace WebApplication.Presentation.Models
         public int CookbookId { get; set; }
         public string? RemovedProductIds { get; set; }
         public ProductFilterViewModel ProductFilter { get; set; } = new ProductFilterViewModel();
+        public List<ShoppingListSummaryViewModel>? AvailableShoppingLists { get; set; }
+
+        public class ShoppingListSummaryViewModel
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+        }
 
     }
 }

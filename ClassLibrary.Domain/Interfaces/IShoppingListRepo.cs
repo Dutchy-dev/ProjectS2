@@ -11,10 +11,14 @@ namespace ClassLibrary.Domain.Interfaces
     {
         void Add(ShoppingList list);
 
+        int GetProductQuantity(int shoppingListId, int productId);
+
+        void SaveProductListItem(int shoppingListId, int productId, int quantity);
+
         List<ShoppingList> GetShoppingListsByUserId(int userId);
 
         void DeleteShoppingList(int shoppingListId);
 
-        ShoppingList GetShoppingListsById(int shoppingListId);
+        ShoppingList GetShoppingListById(int shoppingListId);
     }
 }

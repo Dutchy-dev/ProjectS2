@@ -25,9 +25,9 @@ namespace ClassLibrary.Domain.Services
             return _productListRepo.GetProductsByShoppingListId(shoppingListId);
         }
 
-        public ShoppingList GetShoppingListsById(int shoppingListId)
+        public ShoppingList GetShoppingListById(int shoppingListId)
         {
-            return _shoppingListRepo.GetShoppingListsById(shoppingListId);
+            return _shoppingListRepo.GetShoppingListById(shoppingListId);
         }
 
         public List<(ShoppingList shoppingList, List<ProductWithQuantity> products)> GetShoppingListsWithProductsByUser(int userId)

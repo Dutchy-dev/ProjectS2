@@ -37,7 +37,7 @@ namespace WebApplication.Presentation.Controllers
         {
             var domainItems = _shoppingListService.GetShoppingListDetails(shoppingListId);
             var totalPrice = _shoppingListService.CalculateTotalPrice(shoppingListId);
-            var shoppingList = _shoppingListService.GetShoppingListsById(shoppingListId);
+            var shoppingList = _shoppingListService.GetShoppingListById(shoppingListId);
 
             var viewModel = new ShoppingListDetailsViewModel
             {

@@ -13,11 +13,13 @@ namespace ClassLibrary.Domain.Services
 {
     public class RecipeService
     {
-        private readonly IRecipeRepo _recipeRepo;       
+        private readonly IRecipeRepo _recipeRepo;
+        private readonly IShoppingListRepo _shoppingListRepo;
 
-        public RecipeService(IRecipeRepo recipeRepo)
+        public RecipeService(IRecipeRepo recipeRepo, IShoppingListRepo shoppingListRepo)
         {
             _recipeRepo = recipeRepo;
+            _shoppingListRepo = shoppingListRepo;
         }
 
         public List<Recipe> GetAllRecipesForCookbook(int cookbookId)
@@ -90,6 +92,32 @@ namespace ClassLibrary.Domain.Services
         public List<Product> GetFilteredProducts(ProductFilter filter)
         {
             return _recipeRepo.GetFilteredProducts(filter);
+        }
+
+        public void AddRecipeToShoppingList(int recipeId, int shoppingListId)
+        {
+            var recipeWithoutProducts = _recipeRepo.GetRecipeById(recipeId);
+            var products = _recipeRepo.GetProductsForRecipe(recipeId);
+
+            var recipe = new Recipe(
+                recipeWithoutProducts.Id,
+                recipeWithoutProducts.Name,
+                recipeWithoutProducts.Description,
+                recipeWithoutProducts.CookbookId,
+                products
+            );
+
+            foreach (var productWithQuantity in recipe.Products)
+            {
+                int existingQuantity = _shoppingListRepo.GetProductQuantity(shoppingListId, productWithQuantity.Product.Id);
+                int newQuantity = existingQuantity + productWithQuantity.Quantity;
+
+                _shoppingListRepo.SaveProductListItem(
+                    shoppingListId,
+                    productWithQuantity.Product.Id,
+                    newQuantity
+                );
+            }
         }
     }
 }
