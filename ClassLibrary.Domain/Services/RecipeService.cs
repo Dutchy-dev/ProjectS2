@@ -24,45 +24,110 @@ namespace ClassLibrary.Domain.Services
 
         public List<Recipe> GetAllRecipesForCookbook(int cookbookId)
         {
-            return _recipeRepo.GetAllRecipesForCookbook(cookbookId);
+            try
+            {
+                return _recipeRepo.GetAllRecipesForCookbook(cookbookId);
+            }
+            catch (Exception ex)
+            {
+                ServiceExceptionHelper.HandleException(ex, $"Alle recepten ophalen voor kookboek {cookbookId}");
+                throw;
+            }
         }
 
         public Recipe? GetRecipeById(int id)
         {
-            var recipe = _recipeRepo.GetRecipeById(id);
-            var products = _recipeRepo.GetProductsForRecipe(id);
-            recipe.Products.AddRange(products); 
-            return recipe;
+            try
+            {
+                var recipe = _recipeRepo.GetRecipeById(id);
+                if (recipe == null)
+                    throw new ServicesException($"Recept met ID {id} niet gevonden.", null!);
+
+                var products = _recipeRepo.GetProductsForRecipe(id);
+                recipe.Products.AddRange(products);
+                return recipe;
+            }
+            catch (Exception ex)
+            {
+                ServiceExceptionHelper.HandleException(ex, $"Recept ophalen met ID {id}");
+                throw;
+            }
         }
 
         public List<ProductWithQuantity> GetProductsForRecipe(int recipeId)
         {
-            return _recipeRepo.GetProductsForRecipe(recipeId);
+            try
+            {
+                return _recipeRepo.GetProductsForRecipe(recipeId);
+            }
+            catch (Exception ex)
+            {
+                ServiceExceptionHelper.HandleException(ex, $"Producten ophalen voor recept {recipeId}");
+                throw;
+            }
         }
 
         public bool UpdateRecipe(int recipeId, string name, string description)
         {
-            return _recipeRepo.UpdateRecipe(recipeId, name, description);
+            try
+            {
+                return _recipeRepo.UpdateRecipe(recipeId, name, description);
+            }
+            catch (Exception ex)
+            {
+                ServiceExceptionHelper.HandleException(ex, $"Recept bijwerken (ID: {recipeId})");
+                throw;
+            }
         }
 
         public bool UpdateProductQuantity(int recipeId, int productId, int quantity)
         {
-            return _recipeRepo.UpdateProductQuantity(recipeId, productId, quantity);
+            try
+            {
+                return _recipeRepo.UpdateProductQuantity(recipeId, productId, quantity);
+            }
+            catch (Exception ex)
+            {
+                ServiceExceptionHelper.HandleException(ex, $"Producthoeveelheid bijwerken (Recept: {recipeId}, Product: {productId})");
+                throw;
+            }
         }
 
         public void Create(Recipe recipe)
         {
-            _recipeRepo.Create(recipe);
+            try
+            {
+                _recipeRepo.Create(recipe);
+            }
+            catch (Exception ex)
+            {
+                ServiceExceptionHelper.HandleException(ex, $"Recept aanmaken (Naam: {recipe.Name})");
+            }
         }
 
         public void DeleteRecipe(int id)
         {
-            _recipeRepo.DeleteRecipe(id);
+            try
+            {
+                _recipeRepo.DeleteRecipe(id);
+            }
+            catch (Exception ex)
+            {
+                ServiceExceptionHelper.HandleException(ex, $"Recept verwijderen (ID: {id})");
+            }
         }
 
         public List<Product> GetAllProducts()
         {
-            return _recipeRepo.GetAllProducts();
+            try
+            {
+                return _recipeRepo.GetAllProducts();
+            }
+            catch (Exception ex)
+            {
+                ServiceExceptionHelper.HandleException(ex, "Alle producten ophalen");
+                throw;
+            }
         }
 
         public void AddProductToRecipe(RecipeProduct item)
@@ -80,43 +145,67 @@ namespace ClassLibrary.Domain.Services
             }
             catch (Exception ex)
             {
-                ServiceExceptionHelper.HandleException(ex, "toevoegen product aan recept");
+                ServiceExceptionHelper.HandleException(ex, "Product toevoegen aan recept");
             }
         }
 
         public void RemoveProductFromRecipe(int recipeId, int productId)
         {
-            _recipeRepo.RemoveProductFromRecipe(recipeId, productId);
+            try
+            {
+                _recipeRepo.RemoveProductFromRecipe(recipeId, productId);
+            }
+            catch (Exception ex)
+            {
+                ServiceExceptionHelper.HandleException(ex, $"Product verwijderen uit recept (Recept: {recipeId}, Product: {productId})");
+            }
         }
 
         public List<Product> GetFilteredProducts(ProductFilter filter)
         {
-            return _recipeRepo.GetFilteredProducts(filter);
+            try
+            {
+                return _recipeRepo.GetFilteredProducts(filter);
+            }
+            catch (Exception ex)
+            {
+                ServiceExceptionHelper.HandleException(ex, "Gefilterde producten ophalen");
+                throw;
+            }
         }
 
         public void AddRecipeToShoppingList(int recipeId, int shoppingListId)
         {
-            var recipeWithoutProducts = _recipeRepo.GetRecipeById(recipeId);
-            var products = _recipeRepo.GetProductsForRecipe(recipeId);
-
-            var recipe = new Recipe(
-                recipeWithoutProducts.Id,
-                recipeWithoutProducts.Name,
-                recipeWithoutProducts.Description,
-                recipeWithoutProducts.CookbookId,
-                products
-            );
-
-            foreach (var productWithQuantity in recipe.Products)
+            try
             {
-                int existingQuantity = _shoppingListRepo.GetProductQuantity(shoppingListId, productWithQuantity.Product.Id);
-                int newQuantity = existingQuantity + productWithQuantity.Quantity;
+                var recipeWithoutProducts = _recipeRepo.GetRecipeById(recipeId)
+                    ?? throw new ServicesException($"Recept met ID {recipeId} niet gevonden.", null!);
 
-                _shoppingListRepo.SaveProductListItem(
-                    shoppingListId,
-                    productWithQuantity.Product.Id,
-                    newQuantity
+                var products = _recipeRepo.GetProductsForRecipe(recipeId);
+
+                var recipe = new Recipe(
+                    recipeWithoutProducts.Id,
+                    recipeWithoutProducts.Name,
+                    recipeWithoutProducts.Description,
+                    recipeWithoutProducts.CookbookId,
+                    products
                 );
+
+                foreach (var productWithQuantity in recipe.Products)
+                {
+                    int existingQuantity = _shoppingListRepo.GetProductQuantity(shoppingListId, productWithQuantity.Product.Id);
+                    int newQuantity = existingQuantity + productWithQuantity.Quantity;
+
+                    _shoppingListRepo.SaveProductListItem(
+                        shoppingListId,
+                        productWithQuantity.Product.Id,
+                        newQuantity
+                    );
+                }
+            }
+            catch (Exception ex)
+            {
+                ServiceExceptionHelper.HandleException(ex, $"Recept {recipeId} toevoegen aan boodschappenlijst {shoppingListId}");
             }
         }
     }

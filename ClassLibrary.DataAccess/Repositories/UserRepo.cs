@@ -1,4 +1,5 @@
-﻿using ClassLibrary.Domain.Interfaces;
+﻿using ClassLibrary.DataAccess.DataAcces_Exceptions;
+using ClassLibrary.Domain.Interfaces;
 using ClassLibrary.Domain.Models;
 using MySql.Data.MySqlClient;
 using System;
@@ -20,31 +21,48 @@ namespace ClassLibrary.DataAccess.Repositories
 
         public User? GetByUsername(string username)
         {
-            using var conn = new MySqlConnection(_connectionString);
-            conn.Open();
-
-            using var cmd = new MySqlCommand("SELECT Id, Username, password_hash FROM User WHERE Username = @Username", conn);
-            cmd.Parameters.AddWithValue("@Username", username);
-
-            using var reader = cmd.ExecuteReader();
-            if (reader.Read())
+            try
             {
-                int id = reader.GetInt32("Id");
-                string name = reader.GetString("Username");
-                string passwordHash = reader.GetString("password_hash");
-                return new User(id, name, passwordHash);
+                using var conn = new MySqlConnection(_connectionString);
+                conn.Open();
+
+                using var cmd = new MySqlCommand("SELECT Id, Username, password_hash FROM User WHERE Username = @Username", conn);
+                cmd.Parameters.AddWithValue("@Username", username);
+
+                using var reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    int id = reader.GetInt32("Id");
+                    string name = reader.GetString("Username");
+                    string passwordHash = reader.GetString("password_hash");
+                    return new User(id, name, passwordHash);
+                }
+
+                return null;
+
             }
-            return null;
+            catch (Exception ex)
+            {
+                RepositoryExceptionHelper.HandleException(ex, $"Gebruiker ophalen met gebruikersnaam '{username}'");
+                return null;
+            }
         }
 
         public void Create(string username, string passwordHash)
         {
-            using var conn = new MySqlConnection(_connectionString);
-            conn.Open();
-            using var cmd = new MySqlCommand("INSERT INTO User (Username, password_hash) VALUES (@Username, @hash)", conn);
-            cmd.Parameters.AddWithValue("@Username", username);
-            cmd.Parameters.AddWithValue("@hash", passwordHash);
-            cmd.ExecuteNonQuery();
+            try
+            {
+                using var conn = new MySqlConnection(_connectionString);
+                conn.Open();
+                using var cmd = new MySqlCommand("INSERT INTO User (Username, password_hash) VALUES (@Username, @hash)", conn);
+                cmd.Parameters.AddWithValue("@Username", username);
+                cmd.Parameters.AddWithValue("@hash", passwordHash);
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                RepositoryExceptionHelper.HandleException(ex, $"Gebruiker aanmaken met gebruikersnaam '{username}'");
+            }
         }
     }
 }

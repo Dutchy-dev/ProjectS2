@@ -44,17 +44,53 @@ namespace ClassLibrary.Domain.Services
 
         public List<Product> GetFilteredProducts(ProductFilter filter)
         {
-            return _productListRepo.GetFilteredProducts(filter);
+            try
+            {
+                return _productListRepo.GetFilteredProducts(filter);
+            }
+            catch (Exception ex)
+            {
+                ServiceExceptionHelper.HandleException(ex, "filteren producten");
+                return new List<Product>(); // Return an empty list in case of an error
+            }
         }
 
         public void RemoveProductFromList(int shoppingListId, int productId)
         {
-            _productListRepo.RemoveProductFromList(shoppingListId, productId);
+            if (shoppingListId <= 0 || productId <= 0)
+            {
+                Log.Warning("Ongeldige invoer: ShoppingListId en ProductId moeten groter zijn dan 0 (ShoppingListId: {ListId}, ProductId: {ProductId})",
+                    shoppingListId, productId);
+                throw new ValidationException("ShoppingListId en ProductId moeten groter zijn dan 0.");
+            }
+
+            try
+            {
+                _productListRepo.RemoveProductFromList(shoppingListId, productId);
+            }
+            catch (Exception ex)
+            {
+                ServiceExceptionHelper.HandleException(ex, "verwijderen product uit lijst");
+            }
         }
 
         public void ChangeQuantity(int shoppingListId, int productId, int delta)
         {
-            _productListRepo.UpdateQuantity(shoppingListId, productId, delta);
+            if (delta == 0)
+            {
+                Log.Warning("Ongeldige delta: 0. Geen wijziging in hoeveelheid. (ShoppingListId: {ListId}, ProductId: {ProductId})",
+                    shoppingListId, productId);
+                throw new ValidationException("Aantalwijziging mag niet 0 zijn.");
+            }
+
+            try
+            {
+                _productListRepo.UpdateQuantity(shoppingListId, productId, delta);
+            }
+            catch (Exception ex)
+            {
+                ServiceExceptionHelper.HandleException(ex, "hoeveelheid wijzigen");
+            }
         }
 
     }

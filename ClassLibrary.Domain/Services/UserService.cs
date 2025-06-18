@@ -1,4 +1,5 @@
 ﻿using BCrypt.Net;
+using ClassLibrary.Domain.Domain_Exceptions;
 using ClassLibrary.Domain.Interfaces;
 using ClassLibrary.Domain.Models;
 using System;
@@ -20,18 +21,41 @@ namespace ClassLibrary.Domain.Services
 
         public User? GetByUsername(string username)
         {
-            return _userRepo.GetByUsername(username);
+            try
+            {
+                return _userRepo.GetByUsername(username);
+            }
+            catch (Exception ex)
+            {
+                ServiceExceptionHelper.HandleException(ex, $"GetByUsername({username})");
+                throw;
+            }
         }
 
         public bool UserExists(string username)
         {
-            return _userRepo.GetByUsername(username) != null;
+            try
+            {
+                return _userRepo.GetByUsername(username) != null;
+            }
+            catch (Exception ex)
+            {
+                ServiceExceptionHelper.HandleException(ex, $"UserExists({username})");
+                throw;
+            }
         }
 
         public void CreateUser(string username, string plainPassword)
         {
-            string hash = BCrypt.Net.BCrypt.HashPassword(plainPassword);
-            _userRepo.Create(username, hash);
+            try
+            {
+                string hash = BCrypt.Net.BCrypt.HashPassword(plainPassword);
+                _userRepo.Create(username, hash);
+            }
+            catch (Exception ex)
+            {
+                ServiceExceptionHelper.HandleException(ex, $"CreateUser(username: {username})");
+            }
         }
     }
 }

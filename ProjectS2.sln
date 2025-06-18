@@ -3,11 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35818.85
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassLibrary.Applications", "ClassLibrary.Application\ClassLibrary.Applications.csproj", "{FC56ED11-C2AB-4673-AD28-918617B9DABF}"
-	ProjectSection(ProjectDependencies) = postProject
-		{9646E977-EC16-4B4F-9F25-3C4371EAB746} = {9646E977-EC16-4B4F-9F25-3C4371EAB746}
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassLibrary.DataAccess", "ClassLibrary.DataAccess\ClassLibrary.DataAccess.csproj", "{36D65579-BA20-4CB5-8ED2-7E5F79841B62}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9646E977-EC16-4B4F-9F25-3C4371EAB746} = {9646E977-EC16-4B4F-9F25-3C4371EAB746}
@@ -28,10 +23,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{FC56ED11-C2AB-4673-AD28-918617B9DABF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FC56ED11-C2AB-4673-AD28-918617B9DABF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FC56ED11-C2AB-4673-AD28-918617B9DABF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FC56ED11-C2AB-4673-AD28-918617B9DABF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{36D65579-BA20-4CB5-8ED2-7E5F79841B62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{36D65579-BA20-4CB5-8ED2-7E5F79841B62}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{36D65579-BA20-4CB5-8ED2-7E5F79841B62}.Release|Any CPU.ActiveCfg = Release|Any CPU

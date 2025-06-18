@@ -4,6 +4,7 @@ using ClassLibrary.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication.Presentation.Models;
 using ClassLibrary.Domain.Domain_Exceptions;
+using System.ComponentModel.DataAnnotations;
 
 namespace WebApplication.Presentation.Controllers
 {
@@ -25,6 +26,7 @@ namespace WebApplication.Presentation.Controllers
             {
                 ShoppingListId = shoppingListId
             };
+
             return View(model);
             
         }
@@ -32,11 +34,19 @@ namespace WebApplication.Presentation.Controllers
         [HttpPost]
         public IActionResult AddToList(ProductFilterViewModel model)
         {
-            var domainFilter = model.ToDomainModel();
-            var products = _productListService.GetFilteredProducts(domainFilter);
-            model.Products = products;
+            try
+            {
+                var domainFilter = model.ToDomainModel();
+                var products = _productListService.GetFilteredProducts(domainFilter);
+                model.Products = products;
+            }
+            catch (ServicesException)
+            {
+                TempData["ErrorMessage"] = "Er is iets misgegaan bij het ophalen van de producten.";
+            }
+
             return View(model);
-            
+
         }
 
         [HttpPost]
@@ -52,20 +62,41 @@ namespace WebApplication.Presentation.Controllers
             {
                 TempData["ErrorMessage"] = "Er is iets misgegaan bij het toevoegen van het product.";
             }
+
             return RedirectToAction("AddToList", new { shoppingListId = model.ShoppingListId });
         }
 
         [HttpPost]
         public IActionResult RemoveFromList(int shoppingListId, int productId)
         {
-            _productListService.RemoveProductFromList(shoppingListId, productId);
+            try
+            {
+                _productListService.RemoveProductFromList(shoppingListId, productId);
+            }
+            catch (ServicesException)
+            {
+                TempData["ErrorMessage"] = "Er is iets misgegaan bij het verwijderen van het product.";
+            }
+
             return RedirectToAction("Details", "ShoppingList", new { shoppingListId = shoppingListId });
         }
 
         [HttpPost]
         public IActionResult UpdateQuantity(int shoppingListId, int productId, int delta)
         {
-            _productListService.ChangeQuantity(shoppingListId, productId, delta);
+            try
+            {
+                _productListService.ChangeQuantity(shoppingListId, productId, delta);
+            }
+            catch (ValidationException vex)
+            {
+                TempData["ErrorMessage"] = vex.Message;
+            }
+            catch (ServicesException)
+            {
+                TempData["ErrorMessage"] = "Er is iets misgegaan bij het wijzigen van de hoeveelheid.";
+            }
+
             return RedirectToAction("Details", "ShoppingList", new { shoppingListId = shoppingListId });
         }
 
@@ -82,9 +113,17 @@ namespace WebApplication.Presentation.Controllers
         [HttpPost]
         public IActionResult AddToRecipe(ProductFilterViewModel model)
         {
-            var domainFilter = model.ToDomainModel();
-            var products = _productListService.GetFilteredProducts(domainFilter);
-            model.Products = products;
+            try
+            {
+                var domainFilter = model.ToDomainModel();
+                var products = _productListService.GetFilteredProducts(domainFilter);
+                model.Products = products;
+            }
+            catch (ServicesException)
+            {
+                TempData["ErrorMessage"] = "Er is iets misgegaan bij het ophalen van de producten.";
+            }
+
             return View(model);
         }
 

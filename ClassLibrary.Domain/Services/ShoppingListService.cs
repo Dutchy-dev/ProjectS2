@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ClassLibrary.Domain.Models;
 using ClassLibrary.Domain.Interfaces;
+using ClassLibrary.Domain.Domain_Exceptions;
 
 namespace ClassLibrary.Domain.Services
 {
@@ -22,45 +23,89 @@ namespace ClassLibrary.Domain.Services
         
         public List<ProductWithQuantity> GetShoppingListDetails(int shoppingListId)
         {
-            return _productListRepo.GetProductsByShoppingListId(shoppingListId);
+            try
+            {
+                return _productListRepo.GetProductsByShoppingListId(shoppingListId);
+            }
+            catch (Exception ex)
+            {
+                ServiceExceptionHelper.HandleException(ex, $"GetShoppingListDetails({shoppingListId})");
+                throw;
+            }
         }
 
         public ShoppingList GetShoppingListById(int shoppingListId)
         {
-            return _shoppingListRepo.GetShoppingListById(shoppingListId);
+            try
+            {
+                return _shoppingListRepo.GetShoppingListById(shoppingListId);
+            }
+            catch (Exception ex)
+            {
+                ServiceExceptionHelper.HandleException(ex, $"GetShoppingListById({shoppingListId})");
+                throw;
+            }
         }
 
         public List<(ShoppingList shoppingList, List<ProductWithQuantity> products)> GetShoppingListsWithProductsByUser(int userId)
         {
-            var ShoppingLists = _shoppingListRepo.GetShoppingListsByUserId(userId);
-
-            var result = new List<(ShoppingList, List<ProductWithQuantity>)>();
-
-            foreach (var list in ShoppingLists)
+            try
             {
-                var productsWithQuantities = _productListRepo.GetProductsByShoppingListId(list.Id);
-                result.Add((list, productsWithQuantities));
-            }
+                var shoppingLists = _shoppingListRepo.GetShoppingListsByUserId(userId);
+                var result = new List<(ShoppingList, List<ProductWithQuantity>)>();
 
-            return result;
+                foreach (var list in shoppingLists)
+                {
+                    var productsWithQuantities = _productListRepo.GetProductsByShoppingListId(list.Id);
+                    result.Add((list, productsWithQuantities));
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                ServiceExceptionHelper.HandleException(ex, $"GetShoppingListsWithProductsByUser({userId})");
+                throw;
+            }
         }
 
         public void CreateShoppingList(string theme, int userId)
         {
-            var list = new ShoppingList(theme, userId);
-            _shoppingListRepo.Add(list);
+            try
+            {
+                var list = new ShoppingList(theme, userId);
+                _shoppingListRepo.Add(list);
+            }
+            catch (Exception ex)
+            {
+                ServiceExceptionHelper.HandleException(ex, $"CreateShoppingList(theme: {theme}, userId: {userId})");
+            }
         }
 
         public void DeleteList(int shoppingListId)
         {
-            _shoppingListRepo.DeleteShoppingList(shoppingListId);
+            try
+            {
+                _shoppingListRepo.DeleteShoppingList(shoppingListId);
+            }
+            catch (Exception ex)
+            {
+                ServiceExceptionHelper.HandleException(ex, $"DeleteList({shoppingListId})");
+            }
         }
 
         public decimal CalculateTotalPrice(int shoppingListId)
         {
-            var productsWithQuantities = _productListRepo.GetProductsByShoppingListId(shoppingListId);
-
-            return productsWithQuantities.Sum(p => p.Product.Price * p.Quantity);
+            try
+            {
+                var productsWithQuantities = _productListRepo.GetProductsByShoppingListId(shoppingListId);
+                return productsWithQuantities.Sum(p => p.Product.Price * p.Quantity);
+            }
+            catch (Exception ex)
+            {
+                ServiceExceptionHelper.HandleException(ex, $"CalculateTotalPrice({shoppingListId})");
+                return 0;
+            }
         }
 
     }
