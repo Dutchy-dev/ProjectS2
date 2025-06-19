@@ -105,6 +105,13 @@
                     }
                 });
             });
+                // Verwijderen van localStorage item bij verwijderactie
+            document.querySelectorAll('form[action$="RemoveFromList"]').forEach(form => {
+                form.addEventListener('submit', function () {
+                    const productId = form.querySelector('input[name="productId"]').value;
+                    localStorage.removeItem('found_' + productId);
+                });
+            });
         });
     </script>
 }
