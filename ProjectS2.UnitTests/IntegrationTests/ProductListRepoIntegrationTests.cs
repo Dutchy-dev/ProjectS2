@@ -37,7 +37,11 @@ namespace ProjectS2.Tests.IntegrationTests
 
             // Maak test shoppinglist aan
             using var cmd = connection.CreateCommand();
-            cmd.CommandText = "INSERT INTO shoppinglist (Theme, User_id) VALUES ('TestList', @userId); SELECT LAST_INSERT_ID();";
+            cmd.CommandText = @"
+                INSERT INTO shoppinglist (Theme, User_id) 
+                VALUES ('TestList', @userId); 
+                SELECT LAST_INSERT_ID();";
+
             cmd.Parameters.AddWithValue("@userId", _testUserId);
             _testShoppingListId = Convert.ToInt32(cmd.ExecuteScalar());
         }

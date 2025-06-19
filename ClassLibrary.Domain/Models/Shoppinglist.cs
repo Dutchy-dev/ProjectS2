@@ -25,6 +25,19 @@ namespace ClassLibrary.Domain.Models
             Theme = theme;
             UserId = userId;
         }
+        
+        public override bool Equals(object obj)
+        {
+            return obj is ShoppingList shoppingList &&
+                   Id == shoppingList.Id &&
+                   Theme == shoppingList.Theme &&
+                   UserId == shoppingList.UserId;
+        }
 
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Id, Theme, UserId);
+        }
+        
     }
 }

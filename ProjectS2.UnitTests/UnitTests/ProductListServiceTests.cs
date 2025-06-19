@@ -25,10 +25,13 @@ namespace ProjectS2.Tests.UnitTests
         // Test van normale werking / samenwerking tussen service en repo.
         public void AddProductToList_ValidItem_CallsRepositoryAdd()
         {
+            // Arrange
             var item = new ProductList(1, 2, 3);
 
+            // Act
             _service.AddProductToList(item);
 
+            // Assert
             _mockRepo.Verify(r => r.AddProductToList(item), Times.Once);
         }
 
@@ -37,15 +40,18 @@ namespace ProjectS2.Tests.UnitTests
         [ExpectedException(typeof(ServicesException))]
         public void AddProductToList_RepositoryException_ThrowsServicesException()
         {
+            // Arrange
             var item = new ProductList(1, 2, 3);
-
             var repoException = new RepositoryException("Simulated repository error", null);
 
             _mockRepo
                 .Setup(r => r.AddProductToList(It.IsAny<ProductList>()))
                 .Throws(repoException);
 
+            // Act
             _service.AddProductToList(item);
+
+            // Assert wordt afgehandeld via [ExpectedException]
         }
 
         [TestMethod]
@@ -53,19 +59,22 @@ namespace ProjectS2.Tests.UnitTests
         [ExpectedException(typeof(ServicesException))]
         public void AddProductToList_MySqlException_ThrowsServicesException()
         {
+            // Arrange
             var item = new ProductList(1, 2, 3);
 
-            Console.WriteLine("Test: Simuleren van MySqlException");
-
             var sqlException = (MySqlException)Activator.CreateInstance(
-            typeof(MySqlException),
-            nonPublic: true);
+                typeof(MySqlException),
+                nonPublic: true
+            );
 
             _mockRepo
                 .Setup(r => r.AddProductToList(It.IsAny<ProductList>()))
                 .Throws(sqlException);
 
-            _service.AddProductToList(item); // Verwacht ServicesException
+            // Act
+            _service.AddProductToList(item);
+
+            // Assert wordt afgehandeld via [ExpectedException]
         }
 
         [TestMethod]
@@ -73,27 +82,19 @@ namespace ProjectS2.Tests.UnitTests
         [ExpectedException(typeof(ServicesException))]
         public void AddProductToList_UnexpectedException_ThrowsServicesException()
         {
+            // Arrange
             var item = new ProductList(1, 2, 3);
-
             var unexpectedEx = new NullReferenceException("Unexpected error");
 
             _mockRepo
                 .Setup(r => r.AddProductToList(It.IsAny<ProductList>()))
                 .Throws(unexpectedEx);
 
+            // Act
             _service.AddProductToList(item);
+
+            // Assert wordt afgehandeld via [ExpectedException]
         }
-
-
-        [TestMethod]
-        // Deze test faalt expres om te tonen dat ExpectedException werkt.
-        [ExpectedException(typeof(ServicesException))]
-        public void Test_Should_Fail_When_No_Exception_Thrown()
-        {
-            // Deze code gooit GEEN exception -> test zal FAILEN
-            _service.AddProductToList(new ProductList(1, 2, 3));
-        }
-
     }
 }
 

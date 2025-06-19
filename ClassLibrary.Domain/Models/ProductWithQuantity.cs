@@ -16,5 +16,18 @@ namespace ClassLibrary.Domain.Models
             Product = product;
             Quantity = quantity;
         }
+        
+        public override bool Equals(object obj)
+        {
+            return obj is ProductWithQuantity productWithQuantity &&
+                   Quantity == productWithQuantity.Quantity &&
+                   Product.Equals(productWithQuantity.Product);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Product, Quantity);
+        }
+        
     }
 }

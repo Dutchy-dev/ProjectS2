@@ -30,20 +30,28 @@ namespace ProjectS2.Tests.UnitTests
         {
             // Arrange
             int shoppingListId = 1;
+
+            var productsFromRepo = new List<ProductWithQuantity>
+            {
+                new(new Product(1, "Melk", "Ah", 5.20m, "a"), 1),
+                new(new Product(2, "Brood", "Baba", 9.34m, "b"), 2)
+            };
+
             var expected = new List<ProductWithQuantity>
             {
                 new(new Product(1, "Melk", "Ah", 5.20m, "a"), 1),
                 new(new Product(2, "Brood", "Baba", 9.34m, "b"), 2)
             };
 
-            _mockProductListRepo.Setup(repo => repo.GetProductsByShoppingListId(shoppingListId))
-                                .Returns(expected);
+            _mockProductListRepo
+                .Setup(repo => repo.GetProductsByShoppingListId(shoppingListId))
+                .Returns(productsFromRepo);
 
             // Act
             var result = _service.GetShoppingListDetails(shoppingListId);
 
             // Assert
-            Assert.Equal(expected, result);
+            CollectionAssert.AreEqual(expected, result);
         }
 
         [TestMethod]
@@ -51,15 +59,20 @@ namespace ProjectS2.Tests.UnitTests
         {
             // Arrange
             int listId = 42;
+
+            var repoResult = new ShoppingList(listId, "Weekboodschappen", 3);
+
             var expected = new ShoppingList(listId, "Weekboodschappen", 3);
 
-            _mockShoppingListRepo.Setup(repo => repo.GetShoppingListById(listId)).Returns(expected);
+            _mockShoppingListRepo
+                .Setup(repo => repo.GetShoppingListById(listId))
+                .Returns(repoResult);
 
             // Act
             var result = _service.GetShoppingListById(listId);
 
             // Assert
-            Assert.Equal(expected, result);
+            Assert.AreEqual(expected, result);
         }
 
         [TestMethod]
@@ -67,7 +80,14 @@ namespace ProjectS2.Tests.UnitTests
         {
             // Arrange
             int userId = 5;
-            var shoppingLists = new List<ShoppingList>
+
+            var shoppingListsFromRepo = new List<ShoppingList>
+            {
+                new(1, "Diner", userId),
+                new(2, "Lunch", userId)
+            };
+
+            var expectedShoppingLists = new List<ShoppingList>
             {
                 new(1, "Diner", userId),
                 new(2, "Lunch", userId)
@@ -78,22 +98,40 @@ namespace ProjectS2.Tests.UnitTests
                 new(new Product(1, "Pasta", "Ah", 3.00m, "a"), 1)
             };
 
+            var expectedProductsForList1 = new List<ProductWithQuantity>
+            {
+                new(new Product(1, "Pasta", "Ah", 3.00m, "a"), 1)
+            };
+
             var productsForList2 = new List<ProductWithQuantity>
             {
                 new(new Product(2, "Kaas", "Lidl", 2.50m, "b"), 2)
             };
 
-            _mockShoppingListRepo.Setup(r => r.GetShoppingListsByUserId(userId)).Returns(shoppingLists);
-            _mockProductListRepo.Setup(r => r.GetProductsByShoppingListId(1)).Returns(productsForList1);
-            _mockProductListRepo.Setup(r => r.GetProductsByShoppingListId(2)).Returns(productsForList2);
+            var expectedProductsForList2 = new List<ProductWithQuantity>
+            {
+                new(new Product(2, "Kaas", "Lidl", 2.50m, "b"), 2)
+            };
+
+            _mockShoppingListRepo
+                .Setup(r => r.GetShoppingListsByUserId(userId))
+                .Returns(shoppingListsFromRepo);
+            _mockProductListRepo
+                .Setup(r => r.GetProductsByShoppingListId(1))
+                .Returns(productsForList1);
+            _mockProductListRepo
+                .Setup(r => r.GetProductsByShoppingListId(2))
+                .Returns(productsForList2);
 
             // Act
             var result = _service.GetShoppingListsWithProductsByUser(userId);
 
             // Assert
-            Assert.Equal(2, result.Count);
-            Assert.Equal(productsForList1, result[0].Item2);
-            Assert.Equal(productsForList2, result[1].Item2);
+            Assert.AreEqual(2, result.Count);
+            Assert.AreEqual(expectedShoppingLists[0], result[0].Item1);
+            CollectionAssert.AreEqual(expectedProductsForList1, result[0].Item2);
+            Assert.AreEqual(expectedShoppingLists[1], result[1].Item1);
+            CollectionAssert.AreEqual(expectedProductsForList2, result[1].Item2);
         }
 
         [TestMethod]
@@ -107,7 +145,8 @@ namespace ProjectS2.Tests.UnitTests
             _service.CreateShoppingList(theme, userId);
 
             // Assert
-            _mockShoppingListRepo.Verify(repo => repo.Add(It.Is<ShoppingList>(s =>
+            _mockShoppingListRepo.Verify(repo => 
+                repo.Add(It.Is<ShoppingList>(s =>
                 s.Theme == theme && s.UserId == userId)), Times.Once);
         }
 
@@ -121,7 +160,8 @@ namespace ProjectS2.Tests.UnitTests
             _service.DeleteList(id);
 
             // Assert
-            _mockShoppingListRepo.Verify(repo => repo.DeleteShoppingList(id), Times.Once);
+            _mockShoppingListRepo.Verify(repo => 
+                repo.DeleteShoppingList(id), Times.Once);
         }
 
         [TestMethod]
@@ -135,14 +175,16 @@ namespace ProjectS2.Tests.UnitTests
                 new(new Product(2, "Sinaasappel", "Lidl", 0.75m, "b"), 2)
             };
 
-            _mockProductListRepo.Setup(repo => repo.GetProductsByShoppingListId(listId)).Returns(products);
+            _mockProductListRepo
+                .Setup(repo => repo.GetProductsByShoppingListId(listId))
+                .Returns(products);
 
             // Act
             var result = _service.CalculateTotalPrice(listId);
 
             // Assert
             decimal expectedTotal = (0.50m * 4) + (0.75m * 2); // 2.00 + 1.50 = 3.50
-            Assert.Equal(expectedTotal, result);
+            Assert.AreEqual(expectedTotal, result);
         }
     }
 }

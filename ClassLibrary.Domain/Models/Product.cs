@@ -22,5 +22,21 @@ namespace ClassLibrary.Domain.Models
             Price = price;
             Category = category;
         }
+        
+        public override bool Equals(object obj)
+        {
+            return obj is Product product &&
+                   Id == product.Id &&
+                   Name == product.Name &&
+                   Store == product.Store &&
+                   Price == product.Price &&
+                   Category == product.Category;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Id, Name, Store, Price, Category);
+        }
+        
     }
 }
